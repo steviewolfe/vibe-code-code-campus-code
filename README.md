@@ -1,4 +1,4 @@
-# Campus Customs — Yale E-Commerce Platform with AI Stylist
+# Campus Customs — E-Commerce Platform with AI Stylist
 
 A full-stack e-commerce application for Yale merchandise with an integrated AI-powered personal stylist chatbot. Built with React, FastAPI, and OpenAI (via Portkey).
 
