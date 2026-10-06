@@ -143,6 +143,7 @@ HW4/
 │   └── design.md             # Design system documentation
 │
 └── README.md                  # This file
+└── .env.example                # Add example env file
 ```
 
 ---
