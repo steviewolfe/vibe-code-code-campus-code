@@ -1,0 +1,53 @@
+/* Clothing Rain Animation */
+
+.clothing-rain-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.raindrop {
+  position: absolute;
+  top: 0;
+  font-size: 24px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  will-change: transform, opacity;
+  animation-name: fall;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+
+  @media (max-width: 768px) {
+    font-size: 20px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 16px;
+  }
+}
+
+@keyframes fall {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.9;
+    transform: translateY(50vh) rotate(15deg) scale(0.95);
+  }
+
+  100% {
+    transform: translateY(100vh) rotate(30deg) scale(0.85);
+    opacity: 0;
+  }
+}

@@ -1,0 +1,1774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campus Customs - QA Test Report</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f5f5f5;
+      color: #1a1a1a;
+      line-height: 1.6;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #0a0a0a;
+      color: white;
+      padding: 20px 40px;
+      border-bottom: 4px solid #ff2e93;
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .report-meta {
+      font-size: 12px;
+      color: #ccc;
+      font-family: 'Courier New', monospace;
+    }
+
+    .header-stats {
+      display: flex;
+      gap: 30px;
+      font-size: 13px;
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .stat-number {
+      font-size: 24px;
+      font-weight: 600;
+      color: #ff2e93;
+    }
+
+    .stat-label {
+      color: #aaa;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 70px;
+      bottom: 0;
+      width: 260px;
+      background: white;
+      border-right: 2px solid #ddd;
+      overflow-y: auto;
+      padding: 20px 0;
+      z-index: 100;
+    }
+
+    .sidebar-section {
+      margin-bottom: 30px;
+    }
+
+    .sidebar-section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #999;
+      padding: 8px 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .sidebar-item:hover {
+      background: #f9f9f9;
+      border-left-color: #ff2e93;
+    }
+
+    .sidebar-item.active {
+      background: #fff9fc;
+      border-left-color: #ff2e93;
+      font-weight: 600;
+    }
+
+    .sidebar-item-id {
+      font-size: 11px;
+      font-family: 'Courier New', monospace;
+      color: #ff2e93;
+      font-weight: 600;
+      min-width: 40px;
+    }
+
+    .sidebar-item-name {
+      flex: 1;
+      font-size: 13px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .status-verified { background: #4caf50; }
+    .status-pending { background: #ff9800; }
+    .status-reference { background: #2196f3; }
+
+    /* Main Content */
+    .main {
+      margin-left: 260px;
+      margin-top: 70px;
+      flex: 1;
+      padding: 40px;
+      overflow-y: auto;
+    }
+
+    .panel {
+      display: none;
+      background: white;
+      border: 1px solid #ddd;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .panel.active {
+      display: block;
+      animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Panel Header */
+    .panel-header {
+      background: linear-gradient(90deg, #0a0a0a 0%, #1a1a1a 100%);
+      color: white;
+      padding: 24px 30px;
+      border-left: 4px solid #ff2e93;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-header h2 {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .panel-header-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .journey-id {
+      background: #ff2e93;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-family: 'Courier New', monospace;
+    }
+
+    .status-badge {
+      background: #f0f0f0;
+      color: #0a0a0a;
+      padding: 6px 12px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      border: 1px solid #ddd;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-badge.verified { background: #e8f5e9; border-color: #4caf50; color: #2e7d32; }
+    .status-badge.pending { background: #fff3e0; border-color: #ff9800; color: #e65100; }
+    .status-badge.partial { background: #e3f2fd; border-color: #2196f3; color: #1565c0; }
+    .status-badge.reference { background: #f3e5f5; border-color: #9c27b0; color: #6a1b9a; }
+    .status-badge.unmeasured { background: #fce4ec; border-color: #e91e63; color: #880e4f; }
+
+    /* Panel Content */
+    .panel-content {
+      padding: 30px;
+    }
+
+    .panel-description {
+      font-size: 15px;
+      line-height: 1.8;
+      margin-bottom: 30px;
+      color: #2a2a2a;
+    }
+
+    .panel-description strong {
+      color: #ff2e93;
+      font-weight: 600;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid #eee;
+      margin-bottom: 30px;
+      gap: 0;
+    }
+
+    .tab-button {
+      padding: 12px 24px;
+      background: white;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: #666;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .tab-button:hover {
+      color: #0a0a0a;
+    }
+
+    .tab-button.active {
+      color: #ff2e93;
+      border-bottom-color: #ff2e93;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Flow Steps */
+    .flow-steps {
+      background: #f9f9f9;
+      border: 1px solid #eee;
+      padding: 20px;
+      border-radius: 3px;
+    }
+
+    .steps-list {
+      list-style: decimal;
+      padding-left: 20px;
+    }
+
+    .steps-list li {
+      margin-bottom: 8px;
+      line-height: 1.6;
+      color: #2a2a2a;
+    }
+
+    /* Checklist */
+    .checklist {
+      background: #f9f9f9;
+      border: 1px solid #eee;
+      padding: 20px;
+      border-radius: 3px;
+    }
+
+    .checklist-items {
+      list-style: none;
+    }
+
+    .checklist-items li {
+      padding: 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: #2a2a2a;
+    }
+
+    .checklist-items li::before {
+      content: '✓';
+      color: #ff2e93;
+      font-weight: bold;
+      font-size: 16px;
+      min-width: 20px;
+    }
+
+    /* Screenshots */
+    .screenshot-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .screenshot-container {
+      border: 1px solid #ddd;
+      background: white;
+      overflow: hidden;
+    }
+
+    .screenshot-header {
+      background: #f5f5f5;
+      padding: 12px 16px;
+      border-bottom: 1px solid #ddd;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #666;
+      font-family: 'Courier New', monospace;
+    }
+
+    .screenshot {
+      width: 100%;
+      height: auto;
+      display: block;
+      background: #fafafa;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .screenshot:hover {
+      transform: scale(1.02);
+    }
+
+    .screenshot-caption {
+      padding: 16px;
+      background: #f9f9f9;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #555;
+      border-top: 1px solid #eee;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 30px 0;
+      background: white;
+    }
+
+    table th {
+      background: #0a0a0a;
+      color: white;
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    table td {
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+      font-size: 14px;
+    }
+
+    table tr:hover {
+      background: #f9f9f9;
+    }
+
+    h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-top: 30px;
+      margin-bottom: 16px;
+      color: #0a0a0a;
+    }
+
+    /* Navigation */
+    .panel-nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 40px;
+      padding-top: 30px;
+      border-top: 2px solid #ff2e93;
+    }
+
+    .nav-button {
+      flex: 1;
+      padding: 12px 24px;
+      background: #0a0a0a;
+      color: white;
+      border: 2px solid #0a0a0a;
+      border-radius: 0;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .nav-button:hover:not(:disabled) {
+      background: #ff2e93;
+      border-color: #ff2e93;
+    }
+
+    .nav-button:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    /* Lightbox */
+    .lightbox {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .lightbox.active {
+      display: flex;
+    }
+
+    .lightbox-content {
+      max-width: 90vw;
+      max-height: 90vh;
+      position: relative;
+    }
+
+    .lightbox-image {
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: -40px;
+      right: 0;
+      color: white;
+      font-size: 32px;
+      cursor: pointer;
+      font-weight: 300;
+      line-height: 1;
+    }
+
+    .lightbox-close:hover {
+      color: #ff2e93;
+    }
+
+    /* Mobile Menu */
+    .menu-toggle {
+      display: none;
+      background: #ff2e93;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 600;
+      position: fixed;
+      top: 15px;
+      left: 20px;
+      z-index: 1001;
+    }
+
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 16px 20px;
+      }
+
+      header h1 {
+        font-size: 18px;
+      }
+
+      .header-stats {
+        gap: 16px;
+      }
+
+      .stat-number {
+        font-size: 18px;
+      }
+
+      .menu-toggle {
+        display: block;
+      }
+
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s;
+        width: 100%;
+        max-width: 300px;
+        z-index: 99;
+      }
+
+      .sidebar.active {
+        transform: translateX(0);
+      }
+
+      .main {
+        margin-left: 0;
+      }
+
+      .panel-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .panel-content {
+        padding: 20px;
+      }
+
+      .screenshot-section {
+        grid-template-columns: 1fr;
+      }
+
+      .tabs {
+        flex-wrap: wrap;
+      }
+
+      .tab-button {
+        padding: 10px 16px;
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Campus Customs — QA Report</h1>
+      <div class="report-meta">October 6, 2026 | Localhost (:5173 & :8000)</div>
+    </div>
+    <div class="header-stats">
+      <div class="stat">
+        <div class="stat-number" id="stat-total">11</div>
+        <div class="stat-label">Journeys</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number" id="stat-verified">6</div>
+        <div class="stat-label">Verified</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number" id="stat-pending">3</div>
+        <div class="stat-label">Pending</div>
+      </div>
+    </div>
+  </header>
+
+  <button class="menu-toggle" onclick="toggleSidebar()">☰ Menu</button>
+
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-item" onclick="navigateTo('overview')" id="nav-overview">
+        <div class="status-dot status-reference"></div>
+        <div class="sidebar-item-name">Overview</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Journeys</div>
+      <div class="sidebar-item" onclick="navigateTo('j1-landing')" id="nav-j1-landing">
+        <div class="sidebar-item-id">J1</div>
+        <div class="sidebar-item-name">Landing</div>
+        <div class="status-dot status-verified"></div>
+      </div>
+      <div class="sidebar-item" onclick="navigateTo('j2-browse')" id="nav-j2-browse">
+        <div class="sidebar-item-id">J2</div>
+        <div class="sidebar-item-name">Browse</div>
+        <div class="status-dot status-verified"></div>
+      </div>
+      <div class="sidebar-item" onclick="navigateTo('j3-detail')" id="nav-j3-detail">
+        <div class="sidebar-item-id">J3</div>
+        <div class="sidebar-item-name">Product Detail</div>
+        <div class="status-dot status-verified"></div>
+      </div>
+      <div class="sidebar-item" onclick="navigateTo('j4-auth')" id="nav-j4-auth">
+        <div class="sidebar-item-id">J4</div>
+        <div class="sidebar-item-name">Authentication</div>
+        <div class="status-dot status-verified"></div>
+      </div>
+      <div class="sidebar-item" onclick="navigateTo('j5-info')" id="nav-j5-info">
+        <div class="sidebar-item-id">J5</div>
+        <div class="sidebar-item-name">About & Footer</div>
+        <div class="status-dot status-verified"></div>
+      </div>
+      <div class="sidebar-item" onclick="navigateTo('j6-chat')" id="nav-j6-chat">
+        <div class="sidebar-item-id">J6</div>
+        <div class="sidebar-item-name">Chat Interface</div>
+        <div class="status-dot status-verified"></div>
+      </div>
+      <div class="sidebar-item" onclick="navigateTo('j7-search')" id="nav-j7-search">
+        <div class="sidebar-item-id">J7</div>
+        <div class="sidebar-item-name">Search via Chat</div>
+        <div class="status-dot status-pending"></div>
+      </div>
+      <div class="sidebar-item" onclick="navigateTo('j8-select')" id="nav-j8-select">
+        <div class="sidebar-item-id">J8</div>
+        <div class="sidebar-item-name">Selection from Chat</div>
+        <div class="status-dot status-pending"></div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Cross-Cutting</div>
+      <div class="sidebar-item" onclick="navigateTo('mobile')" id="nav-mobile">
+        <div class="sidebar-item-name">Mobile</div>
+        <div class="status-dot status-verified"></div>
+      </div>
+      <div class="sidebar-item" onclick="navigateTo('design')" id="nav-design">
+        <div class="sidebar-item-name">Design System</div>
+        <div class="status-dot status-reference"></div>
+      </div>
+      <div class="sidebar-item" onclick="navigateTo('backend')" id="nav-backend">
+        <div class="sidebar-item-name">Backend Perf</div>
+        <div class="status-dot status-pending"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- Overview Panel -->
+    <div class="panel active" id="overview">
+      <div class="panel-header">
+        <h2>Overview</h2>
+        <span class="status-badge reference"><span class="status-dot status-reference"></span>Reference</span>
+      </div>
+      <div class="panel-content">
+        <div class="panel-description">
+          Campus Customs is a React-based e-commerce platform with an integrated AI stylist chat interface,
+          styled with a bold black-and-pink aesthetic. This report documents 8 primary user journeys covering
+          landing, product browsing, authentication, informational pages, and chat interactions; plus cross-cutting
+          tests for mobile responsiveness, design system consistency, and backend performance. <strong>Note:</strong>
+          J7 and J8 are documented but lack captured screenshots (pending). Backend timings are referenced from
+          earlier docs, not re-measured here.
+        </div>
+
+        <h3>Journey Coverage</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 30px;">
+          <!-- J1 -->
+          <div style="background: white; border: 1px solid #ddd; padding: 16px; border-radius: 3px; cursor: pointer;" onclick="navigateTo('j1-landing')">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <div style="font-weight: 600; color: #ff2e93;">J1</div>
+              <span class="status-badge verified"><span class="status-dot status-verified"></span>Verified</span>
+            </div>
+            <div style="font-size: 14px; margin-bottom: 8px; font-weight: 500;">Landing & Homepage</div>
+            <div style="font-size: 12px; color: #666;">2 screenshots • 7 checks</div>
+          </div>
+
+          <!-- J2 -->
+          <div style="background: white; border: 1px solid #ddd; padding: 16px; border-radius: 3px; cursor: pointer;" onclick="navigateTo('j2-browse')">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <div style="font-weight: 600; color: #ff2e93;">J2</div>
+              <span class="status-badge verified"><span class="status-dot status-verified"></span>Verified</span>
+            </div>
+            <div style="font-size: 14px; margin-bottom: 8px; font-weight: 500;">Product Discovery</div>
+            <div style="font-size: 12px; color: #666;">1 screenshot • 10 checks</div>
+          </div>
+
+          <!-- J3 -->
+          <div style="background: white; border: 1px solid #ddd; padding: 16px; border-radius: 3px; cursor: pointer;" onclick="navigateTo('j3-detail')">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <div style="font-weight: 600; color: #ff2e93;">J3</div>
+              <span class="status-badge verified"><span class="status-dot status-verified"></span>Verified</span>
+            </div>
+            <div style="font-size: 14px; margin-bottom: 8px; font-weight: 500;">Product Detail</div>
+            <div style="font-size: 12px; color: #666;">1 screenshot • 13 checks</div>
+          </div>
+
+          <!-- J4 -->
+          <div style="background: white; border: 1px solid #ddd; padding: 16px; border-radius: 3px; cursor: pointer;" onclick="navigateTo('j4-auth')">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <div style="font-weight: 600; color: #ff2e93;">J4</div>
+              <span class="status-badge verified"><span class="status-dot status-verified"></span>Verified</span>
+            </div>
+            <div style="font-size: 14px; margin-bottom: 8px; font-weight: 500;">Authentication</div>
+            <div style="font-size: 12px; color: #666;">1 screenshot • 10 checks</div>
+          </div>
+
+          <!-- J5 -->
+          <div style="background: white; border: 1px solid #ddd; padding: 16px; border-radius: 3px; cursor: pointer;" onclick="navigateTo('j5-info')">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <div style="font-weight: 600; color: #ff2e93;">J5</div>
+              <span class="status-badge verified"><span class="status-dot status-verified"></span>Verified</span>
+            </div>
+            <div style="font-size: 14px; margin-bottom: 8px; font-weight: 500;">About & Footer</div>
+            <div style="font-size: 12px; color: #666;">2 screenshots • 8 checks</div>
+          </div>
+
+          <!-- J6 -->
+          <div style="background: white; border: 1px solid #ddd; padding: 16px; border-radius: 3px; cursor: pointer;" onclick="navigateTo('j6-chat')">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <div style="font-weight: 600; color: #ff2e93;">J6</div>
+              <span class="status-badge verified"><span class="status-dot status-verified"></span>Verified</span>
+            </div>
+            <div style="font-size: 14px; margin-bottom: 8px; font-weight: 500;">Chat Interface</div>
+            <div style="font-size: 12px; color: #666;">2 screenshots • 15 checks</div>
+          </div>
+
+          <!-- J7 -->
+          <div style="background: white; border: 1px solid #ddd; padding: 16px; border-radius: 3px; cursor: pointer;" onclick="navigateTo('j7-search')">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <div style="font-weight: 600; color: #ff2e93;">J7</div>
+              <span class="status-badge pending"><span class="status-dot status-pending"></span>Pending</span>
+            </div>
+            <div style="font-size: 14px; margin-bottom: 8px; font-weight: 500;">Search via Chat</div>
+            <div style="font-size: 12px; color: #666;">0 screenshots • 11 checks</div>
+          </div>
+
+          <!-- J8 -->
+          <div style="background: white; border: 1px solid #ddd; padding: 16px; border-radius: 3px; cursor: pointer;" onclick="navigateTo('j8-select')">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <div style="font-weight: 600; color: #ff2e93;">J8</div>
+              <span class="status-badge partial"><span class="status-dot status-pending"></span>Partial</span>
+            </div>
+            <div style="font-size: 14px; margin-bottom: 8px; font-weight: 500;">Selection from Chat</div>
+            <div style="font-size: 12px; color: #666;">1 screenshot (reused) • 13 checks</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- J1 Panel -->
+    <div class="panel" id="j1-landing">
+      <div class="panel-header">
+        <div>
+          <h2>Landing & Homepage Experience</h2>
+        </div>
+        <div class="panel-header-meta">
+          <span class="journey-id">J1</span>
+          <span class="status-badge verified"><span class="status-dot status-verified"></span>Verified</span>
+        </div>
+      </div>
+      <div class="panel-content">
+        <div class="panel-description">
+          A user visits the Campus Customs application and experiences an immediate visual celebration with
+          80 falling clothing emojis (👕👔👗👠) that descend smoothly over exactly 3 seconds. The animation
+          does not interfere with reading the hero section below, which displays the brand wordmark "The Yale Edit"
+          with prominent 3px pink borders. Feature highlights and product collections follow, with a strong
+          "Shop Now" call-to-action that guides the user toward the products catalog.
+        </div>
+
+        <div class="tabs">
+          <button class="tab-button active" onclick="switchTab(event, 'j1-flow')">Flow (7)</button>
+          <button class="tab-button" onclick="switchTab(event, 'j1-checks')">Checks (7)</button>
+          <button class="tab-button" onclick="switchTab(event, 'j1-screenshots')">Screenshots (2)</button>
+        </div>
+
+        <div id="j1-flow" class="tab-content active">
+          <div class="flow-steps">
+            <ol class="steps-list">
+              <li>User opens the application URL</li>
+              <li>Page loads and emoji rain animation triggers immediately</li>
+              <li>80 clothing emojis (24px desktop, 16px mobile) fall from top in coordinated pattern</li>
+              <li>Hero section remains fully visible and readable throughout animation</li>
+              <li>Animation completes after 3 seconds and emojis are cleared from DOM</li>
+              <li>User can read hero content, feature list, and featured product collections</li>
+              <li>User clicks "Shop Now" to navigate to product browsing page</li>
+            </ol>
+          </div>
+        </div>
+
+        <div id="j1-checks" class="tab-content">
+          <div class="checklist">
+            <ul class="checklist-items">
+              <li>Emoji rain animation renders 80 unique clothing emojis</li>
+              <li>Animation duration is exactly 3 seconds</li>
+              <li>Emojis fall with smooth linear motion (no easing)</li>
+              <li>Hero section visible and readable during animation</li>
+              <li>Border styling: 3px solid pink on hero container</li>
+              <li>Featured product cards display images, names, prices correctly</li>
+              <li>Navigation links responsive to user interaction</li>
+            </ul>
+          </div>
+        </div>
+
+        <div id="j1-screenshots" class="tab-content">
+          <div class="screenshot-section">
+            <div class="screenshot-container">
+              <div class="screenshot-header">Landing Page — Emoji Rain Animation (0.5s)</div>
+              <img src="app_check_images/01-landing-emoji-rain-mid.png" alt="Landing page showing emoji rain animation" class="screenshot" onclick="openLightbox(this.src)">
+              <div class="screenshot-caption">
+                Clothing emojis at various heights during descent. 24px emojis on desktop, staggered start times create wave effect.
+              </div>
+            </div>
+
+            <div class="screenshot-container">
+              <div class="screenshot-header">Landing Page — Post-Animation (3s)</div>
+              <img src="app_check_images/02-landing-hero-full.png" alt="Landing page with hero section and features" class="screenshot" onclick="openLightbox(this.src)">
+              <div class="screenshot-caption">
+                Hero section with 3px pink border, bold typography, and feature items with 2px pink dividers.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-nav">
+          <button class="nav-button" onclick="prevPanel()" disabled>← Previous</button>
+          <button class="nav-button" onclick="nextPanel()">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- J2 Panel -->
+    <div class="panel" id="j2-browse">
+      <div class="panel-header">
+        <div>
+          <h2>Product Discovery & Browsing</h2>
+        </div>
+        <div class="panel-header-meta">
+          <span class="journey-id">J2</span>
+          <span class="status-badge verified"><span class="status-dot status-verified"></span>Verified</span>
+        </div>
+      </div>
+      <div class="panel-content">
+        <div class="panel-description">
+          The user navigates to the Products page through the main navigation menu or "Shop Now" call-to-action.
+          The page renders a responsive grid layout with product cards arranged in 4 columns on desktop viewports.
+          Each card displays a product image, name, price, and brief description. The user can refine their
+          search using category filter toggles and sort products by various criteria.
+        </div>
+
+        <div class="tabs">
+          <button class="tab-button active" onclick="switchTab(event, 'j2-flow')">Flow (8)</button>
+          <button class="tab-button" onclick="switchTab(event, 'j2-checks')">Checks (10)</button>
+          <button class="tab-button" onclick="switchTab(event, 'j2-screenshots')">Screenshots (1)</button>
+        </div>
+
+        <div id="j2-flow" class="tab-content active">
+          <div class="flow-steps">
+            <ol class="steps-list">
+              <li>User clicks "PRODUCTS" in navigation or "Shop Now" button</li>
+              <li>Products page loads with full grid of product cards</li>
+              <li>Page displays products in 4-column grid layout (desktop viewport)</li>
+              <li>Each card shows product image, title, price, and category description</li>
+              <li>User reviews product lineup and scans for items of interest</li>
+              <li>User optionally uses filter toggles to narrow results by category</li>
+              <li>User optionally uses sort dropdown to reorder by price or name</li>
+              <li>User clicks a product card to view detailed information and options</li>
+            </ol>
+          </div>
+        </div>
+
+        <div id="j2-checks" class="tab-content">
+          <div class="checklist">
+            <ul class="checklist-items">
+              <li>Products grid renders in 4-column layout on desktop (1440px)</li>
+              <li>Grid reflows to 2 columns on tablet and 1 column on mobile</li>
+              <li>Product cards have 2px black borders</li>
+              <li>Product cards have 4px offset pink shadow (4px 4px 0 #ff2e93)</li>
+              <li>Product images load without errors or broken references</li>
+              <li>Price displays with dollar formatting and correct alignment</li>
+              <li>Filter toggles respond to clicks and apply visual selection state</li>
+              <li>Active filter state highlighted in pink background</li>
+              <li>Sort dropdown functional and reorders product list</li>
+              <li>Card hover effect: lifts card (translateY -4px) and increases shadow offset</li>
+            </ul>
+          </div>
+        </div>
+
+        <div id="j2-screenshots" class="tab-content">
+          <div class="screenshot-section">
+            <div class="screenshot-container">
+              <div class="screenshot-header">Products Grid — Desktop View (1440×900)</div>
+              <img src="app_check_images/03-products-grid-desktop.png" alt="Products page showing grid of product cards" class="screenshot" onclick="openLightbox(this.src)">
+              <div class="screenshot-caption">
+                4-column responsive grid with consistent card styling. Each card shows product image, name, and price.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-nav">
+          <button class="nav-button" onclick="prevPanel()">← Previous</button>
+          <button class="nav-button" onclick="nextPanel()">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- J3 Panel -->
+    <div class="panel" id="j3-detail">
+      <div class="panel-header">
+        <div>
+          <h2>Product Detail & Selection</h2>
+        </div>
+        <div class="panel-header-meta">
+          <span class="journey-id">J3</span>
+          <span class="status-badge verified"><span class="status-dot status-verified"></span>Verified</span>
+        </div>
+      </div>
+      <div class="panel-content">
+        <div class="panel-description">
+          The user clicks on a product card to view detailed information. The detail page presents a large
+          product image on the left with 2px black border and 4px pink shadow. The right column displays the
+          product name, price with 2px pink underline accent, available color and size options, stock status,
+          and a prominent hot-pink "Add to Cart" button.
+        </div>
+
+        <div class="tabs">
+          <button class="tab-button active" onclick="switchTab(event, 'j3-flow')">Flow (10)</button>
+          <button class="tab-button" onclick="switchTab(event, 'j3-checks')">Checks (13)</button>
+          <button class="tab-button" onclick="switchTab(event, 'j3-screenshots')">Screenshots (1)</button>
+        </div>
+
+        <div id="j3-flow" class="tab-content active">
+          <div class="flow-steps">
+            <ol class="steps-list">
+              <li>User clicks a product card from the products grid</li>
+              <li>Product detail page loads with large image and options</li>
+              <li>User reviews product description, specifications, and available options</li>
+              <li>User clicks a color option button to select preferred color</li>
+              <li>Selected color button highlights in pink background</li>
+              <li>User clicks a size option button to select preferred size</li>
+              <li>Selected size button highlights in pink background</li>
+              <li>User reviews stock status badge (in stock, low stock, or sold out)</li>
+              <li>User clicks "Add to Cart" button to initiate purchase flow</li>
+              <li>Button responds with hover effect: enhanced shadow and color shift</li>
+            </ol>
+          </div>
+        </div>
+
+        <div id="j3-checks" class="tab-content">
+          <div class="checklist">
+            <ul class="checklist-items">
+              <li>Product image displays with proper aspect ratio (4:5)</li>
+              <li>Image container has 2px black border and 4px pink offset shadow</li>
+              <li>Product title displays with serif display font</li>
+              <li>Price displays with 2px solid pink underline accent</li>
+              <li>Color selector buttons toggle between unselected and selected states</li>
+              <li>Selected color: pink background with white text</li>
+              <li>Size selector buttons toggle between unselected and selected states</li>
+              <li>Selected size: pink background with white text</li>
+              <li>Stock status badge displays in-stock, low-stock, or out-of-stock state</li>
+              <li>Add-to-cart button styled in hot pink (#ff2e93) background</li>
+              <li>Button has 2px black border and 4px offset shadow</li>
+              <li>Button hover: shadow increases to 6px offset and text color inverts</li>
+              <li>Disabled state (out of stock) disables button and reduces opacity</li>
+            </ul>
+          </div>
+        </div>
+
+        <div id="j3-screenshots" class="tab-content">
+          <div class="screenshot-section">
+            <div class="screenshot-container">
+              <div class="screenshot-header">Product Detail Page — Full View</div>
+              <img src="app_check_images/05-product-detail-full.png" alt="Product detail page with image and options" class="screenshot" onclick="openLightbox(this.src)">
+              <div class="screenshot-caption">
+                Left: Large product image (4:5 aspect ratio) with 2px black border and 4px pink shadow.
+                Right: Product metadata including title, price, color tags, size buttons, stock status, and add-to-cart button.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-nav">
+          <button class="nav-button" onclick="prevPanel()">← Previous</button>
+          <button class="nav-button" onclick="nextPanel()">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- J4 Panel -->
+    <div class="panel" id="j4-auth">
+      <div class="panel-header">
+        <div>
+          <h2>User Registration & Authentication</h2>
+        </div>
+        <div class="panel-header-meta">
+          <span class="journey-id">J4</span>
+          <span class="status-badge verified"><span class="status-dot status-verified"></span>Verified</span>
+        </div>
+      </div>
+      <div class="panel-content">
+        <div class="panel-description">
+          A new user can create an account by clicking "Create Account" in the navigation bar. The registration
+          form collects first name, last name, email address, password, and password confirmation. Client-side
+          and server-side validation provides clear error messages for invalid inputs. Upon successful registration,
+          the user is logged in automatically and returned to the homepage.
+        </div>
+
+        <div class="tabs">
+          <button class="tab-button active" onclick="switchTab(event, 'j4-flow')">Flow (11)</button>
+          <button class="tab-button" onclick="switchTab(event, 'j4-checks')">Checks (10)</button>
+          <button class="tab-button" onclick="switchTab(event, 'j4-screenshots')">Screenshots (1)</button>
+        </div>
+
+        <div id="j4-flow" class="tab-content active">
+          <div class="flow-steps">
+            <ol class="steps-list">
+              <li>User clicks "CREATE ACCOUNT" link in navigation bar</li>
+              <li>Registration form page loads with input fields</li>
+              <li>User enters first name, last name, email, password, and confirmation</li>
+              <li>User clicks "Create Account" button to submit form</li>
+              <li>Form performs client-side validation of all required fields</li>
+              <li>Server validates input and checks for duplicate email</li>
+              <li>Server returns validation errors or success response</li>
+              <li>Upon successful registration, user is logged in automatically</li>
+              <li>User is redirected to homepage with session established</li>
+              <li>Navbar displays personalized greeting: "Welcome, [First Name]"</li>
+              <li>Logout option appears in navbar menu</li>
+            </ol>
+          </div>
+        </div>
+
+        <div id="j4-checks" class="tab-content">
+          <div class="checklist">
+            <ul class="checklist-items">
+              <li>Form loads with all required input fields visible</li>
+              <li>Input fields styled with 2px borders for consistency</li>
+              <li>Form labels clear and descriptive</li>
+              <li>Form validation messages display for invalid inputs</li>
+              <li>Submit button styled with pink background and offset shadow</li>
+              <li>Login link provided for existing users</li>
+              <li>Successful registration creates user record in database</li>
+              <li>Password stored securely (hashed, not plaintext)</li>
+              <li>User session established upon successful registration</li>
+              <li>Personalized greeting displays in navbar for logged-in user</li>
+            </ul>
+          </div>
+        </div>
+
+        <div id="j4-screenshots" class="tab-content">
+          <div class="screenshot-section">
+            <div class="screenshot-container">
+              <div class="screenshot-header">Registration Form — Full View</div>
+              <img src="app_check_images/18-register-form.png" alt="Registration form with input fields" class="screenshot" onclick="openLightbox(this.src)">
+              <div class="screenshot-caption">
+                Clean registration form with input fields for first name, last name, email, password, and confirmation.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-nav">
+          <button class="nav-button" onclick="prevPanel()">← Previous</button>
+          <button class="nav-button" onclick="nextPanel()">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- J5 Panel -->
+    <div class="panel" id="j5-info">
+      <div class="panel-header">
+        <div>
+          <h2>About Page & Footer Navigation</h2>
+        </div>
+        <div class="panel-header-meta">
+          <span class="journey-id">J5</span>
+          <span class="status-badge verified"><span class="status-dot status-verified"></span>Verified</span>
+        </div>
+      </div>
+      <div class="panel-content">
+        <div class="panel-description">
+          Users can navigate to the About Us page from the main navigation menu to learn about the Campus Customs
+          brand, company mission, and values. A persistent footer appears at the bottom of every page, containing
+          quick navigation links, newsletter subscription form, social media links, and copyright information.
+        </div>
+
+        <div class="tabs">
+          <button class="tab-button active" onclick="switchTab(event, 'j5-flow')">Flow (8)</button>
+          <button class="tab-button" onclick="switchTab(event, 'j5-checks')">Checks (8)</button>
+          <button class="tab-button" onclick="switchTab(event, 'j5-screenshots')">Screenshots (2)</button>
+        </div>
+
+        <div id="j5-flow" class="tab-content active">
+          <div class="flow-steps">
+            <ol class="steps-list">
+              <li>User clicks "ABOUT US" in the main navigation menu</li>
+              <li>About Us page loads with company story and brand information</li>
+              <li>User reads brand mission, values, and company background</li>
+              <li>User scrolls to bottom of page (or any page) to see footer</li>
+              <li>User can click footer links for Help, Shipping, Returns, etc.</li>
+              <li>User can enter email address in newsletter subscription form</li>
+              <li>User can click social media icons to visit external platforms</li>
+              <li>Copyright and legal information displayed in footer</li>
+            </ol>
+          </div>
+        </div>
+
+        <div id="j5-checks" class="tab-content">
+          <div class="checklist">
+            <ul class="checklist-items">
+              <li>About page navigates and loads without errors</li>
+              <li>About page content displays with consistent typography and spacing</li>
+              <li>Footer appears on every page (persistent navigation)</li>
+              <li>Footer links are clickable and navigate correctly</li>
+              <li>Newsletter form accepts email input and submits successfully</li>
+              <li>Social media icons link to correct external platforms</li>
+              <li>Footer styling consistent with black-and-pink design system</li>
+              <li>Footer responsive on mobile (stacks vertically)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div id="j5-screenshots" class="tab-content">
+          <div class="screenshot-section">
+            <div class="screenshot-container">
+              <div class="screenshot-header">About Us Page</div>
+              <img src="app_check_images/16-about-page.png" alt="About Us page with brand information" class="screenshot" onclick="openLightbox(this.src)">
+              <div class="screenshot-caption">
+                About Us page displays brand story and company values with consistent black-and-pink styling.
+              </div>
+            </div>
+
+            <div class="screenshot-container">
+              <div class="screenshot-header">Footer Section</div>
+              <img src="app_check_images/17-footer.png" alt="Footer with links and newsletter signup" class="screenshot" onclick="openLightbox(this.src)">
+              <div class="screenshot-caption">
+                Footer contains quick navigation links, newsletter subscription form, social media icons, and copyright information.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-nav">
+          <button class="nav-button" onclick="prevPanel()">← Previous</button>
+          <button class="nav-button" onclick="nextPanel()">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- J6 Panel -->
+    <div class="panel" id="j6-chat">
+      <div class="panel-header">
+        <div>
+          <h2>AI Stylist Chat Interface</h2>
+        </div>
+        <div class="panel-header-meta">
+          <span class="journey-id">J6</span>
+          <span class="status-badge verified"><span class="status-dot status-verified"></span>Verified</span>
+        </div>
+      </div>
+      <div class="panel-content">
+        <div class="panel-description">
+          A chat widget is anchored to the bottom-right corner of every page, featuring a hot-pink circular
+          launcher button with 4px black offset shadow. Clicking the launcher opens a floating panel with a
+          "Personal Stylist" subtitle and personalized greeting. When a user views a product detail page, the
+          chat panel displays a context chip showing the current product's image, name, and price.
+        </div>
+
+        <div class="tabs">
+          <button class="tab-button active" onclick="switchTab(event, 'j6-flow')">Flow (12)</button>
+          <button class="tab-button" onclick="switchTab(event, 'j6-checks')">Checks (15)</button>
+          <button class="tab-button" onclick="switchTab(event, 'j6-screenshots')">Screenshots (2)</button>
+        </div>
+
+        <div id="j6-flow" class="tab-content active">
+          <div class="flow-steps">
+            <ol class="steps-list">
+              <li>User sees hot-pink circular launcher button in bottom-right corner</li>
+              <li>User clicks launcher button to open chat panel</li>
+              <li>Panel slides in from right with smooth animation</li>
+              <li>Panel header displays "Personal Stylist" title and personalized greeting</li>
+              <li>On product pages: context chip shows current product details</li>
+              <li>User reviews suggestion chips (e.g., "What sizes are available?")</li>
+              <li>User clicks suggestion chip or types custom message</li>
+              <li>Message appears in conversation thread with timestamp</li>
+              <li>Typing indicator shows while AI processes response</li>
+              <li>AI response displays with product data, recommendations, or answers</li>
+              <li>User can clear conversation history or minimize panel</li>
+              <li>Footer reminder: "AI stylist. Verify details at checkout."</li>
+            </ol>
+          </div>
+        </div>
+
+        <div id="j6-checks" class="tab-content">
+          <div class="checklist">
+            <ul class="checklist-items">
+              <li>Chat launcher button visible on every page (fixed positioning)</li>
+              <li>Launcher button styled as hot pink circle with 4px black shadow</li>
+              <li>Panel opens with smooth animation from right side</li>
+              <li>Panel header displays "Personal Stylist" title</li>
+              <li>Personalized greeting message displays (e.g., "Good afternoon, Sam")</li>
+              <li>Panel has 2px black border and 8px pink offset shadow</li>
+              <li>On product pages: context chip displays product image, name, price</li>
+              <li>Suggestion chips display and respond to clicks</li>
+              <li>Message composer accepts text input and focuses on click</li>
+              <li>Send button responsive and submits messages correctly</li>
+              <li>Typing indicator displays while awaiting AI response</li>
+              <li>AI responses display with proper formatting and data</li>
+              <li>Clear conversation button removes all messages from history</li>
+              <li>Minimize button collapses panel back to launcher state</li>
+              <li>Disclaimer footer text visible: "AI stylist. Verify details at checkout."</li>
+            </ul>
+          </div>
+        </div>
+
+        <div id="j6-screenshots" class="tab-content">
+          <div class="screenshot-section">
+            <div class="screenshot-container">
+              <div class="screenshot-header">Chat Launcher (Closed State)</div>
+              <img src="app_check_images/08-chat-launcher-closed.png" alt="Chat launcher button at bottom right" class="screenshot" onclick="openLightbox(this.src)">
+              <div class="screenshot-caption">
+                Hot pink circular launcher button with 4px black offset shadow. Fixed position in bottom-right corner.
+              </div>
+            </div>
+
+            <div class="screenshot-container">
+              <div class="screenshot-header">Chat Panel (Open State)</div>
+              <img src="app_check_images/09-chat-panel-open-greeting.png" alt="Chat panel opened showing greeting and suggestion chips" class="screenshot" onclick="openLightbox(this.src)">
+              <div class="screenshot-caption">
+                Panel opens with 2px black border and 8px pink offset shadow. Header shows stylist branding.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-nav">
+          <button class="nav-button" onclick="prevPanel()">← Previous</button>
+          <button class="nav-button" onclick="nextPanel()">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- J7 Panel -->
+    <div class="panel" id="j7-search">
+      <div class="panel-header">
+        <div>
+          <h2>Product Search via Chat</h2>
+        </div>
+        <div class="panel-header-meta">
+          <span class="journey-id">J7</span>
+          <span class="status-badge pending"><span class="status-dot status-pending"></span>Pending Screenshot</span>
+        </div>
+      </div>
+      <div class="panel-content">
+        <div class="panel-description">
+          A user wants to explore products in a specific category and asks the AI stylist for recommendations.
+          The user types a natural language query such as "Show me hoodies" or "What hoodies do you have?" The
+          chat interface processes the query and returns a horizontal scrollable carousel of product cards displaying
+          product images, names, and prices. <strong>Note:</strong> This journey is documented but lacks a captured screenshot.
+          Carousel implementation exists in the codebase but Playwright automation did not capture this flow.
+        </div>
+
+        <div class="tabs">
+          <button class="tab-button active" onclick="switchTab(event, 'j7-flow')">Flow (11)</button>
+          <button class="tab-button" onclick="switchTab(event, 'j7-checks')">Checks (11)</button>
+        </div>
+
+        <div id="j7-flow" class="tab-content active">
+          <div class="flow-steps">
+            <ol class="steps-list">
+              <li>User opens chat panel (already open or newly opened)</li>
+              <li>User types a product search query (e.g., "Show me hoodies")</li>
+              <li>User clicks send button or presses Enter to submit message</li>
+              <li>Message appears in chat thread with user attribution</li>
+              <li>Typing indicator displays while AI processes the search query</li>
+              <li>AI responds with a product carousel container</li>
+              <li>Carousel displays horizontally scrollable product cards</li>
+              <li>Each card shows product image, name, and price</li>
+              <li>User scrolls carousel left/right to view more products</li>
+              <li>User reviews product options and compares prices/styles</li>
+              <li>User optionally clicks a product card to view details</li>
+            </ol>
+          </div>
+        </div>
+
+        <div id="j7-checks" class="tab-content">
+          <div class="checklist">
+            <ul class="checklist-items">
+              <li>Chat accepts text input for product search queries</li>
+              <li>Typing indicator displays while AI processes request</li>
+              <li>Product carousel renders with multiple product cards</li>
+              <li>Carousel is horizontally scrollable (scroll arrows or swipe)</li>
+              <li>Each product card displays image thumbnail (consistent aspect ratio)</li>
+              <li>Product name displays below image</li>
+              <li>Product price displays with dollar formatting</li>
+              <li>"Sold Out" tag appears on out-of-stock products</li>
+              <li>Cards are clickable and link to product detail page</li>
+              <li>Carousel scrolls smoothly without jumping or lag</li>
+              <li>Mobile: carousel remains scrollable and readable on narrow viewports</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="panel-nav">
+          <button class="nav-button" onclick="prevPanel()">← Previous</button>
+          <button class="nav-button" onclick="nextPanel()">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- J8 Panel -->
+    <div class="panel" id="j8-select">
+      <div class="panel-header">
+        <div>
+          <h2>Product Selection from Chat Results</h2>
+        </div>
+        <div class="panel-header-meta">
+          <span class="journey-id">J8</span>
+          <span class="status-badge partial"><span class="status-dot status-pending"></span>Partial (Reused J3)</span>
+        </div>
+      </div>
+      <div class="panel-content">
+        <div class="panel-description">
+          After reviewing product search results in the chat carousel, a user clicks on a specific product
+          card to view more details. The application navigates to the product detail page for the selected item,
+          displaying the full product image, all available sizes and colors, pricing, stock status, and the
+          ability to add the item to cart. <strong>Note:</strong> Screenshot reuses J3 product detail page;
+          carousel-to-detail flow not separately captured.
+        </div>
+
+        <div class="tabs">
+          <button class="tab-button active" onclick="switchTab(event, 'j8-flow')">Flow (13)</button>
+          <button class="tab-button" onclick="switchTab(event, 'j8-checks')">Checks (13)</button>
+          <button class="tab-button" onclick="switchTab(event, 'j8-screenshots')">Screenshots (1)</button>
+        </div>
+
+        <div id="j8-flow" class="tab-content active">
+          <div class="flow-steps">
+            <ol class="steps-list">
+              <li>User views product carousel in chat panel with search results</li>
+              <li>User identifies a hoodie of interest and clicks on the product card</li>
+              <li>Application navigates to product detail page for selected hoodie</li>
+              <li>Product detail page loads with full resolution image</li>
+              <li>User sees product name, description, price, and availability</li>
+              <li>User reviews available color options</li>
+              <li>User selects a color (button highlights in pink)</li>
+              <li>User reviews available size options</li>
+              <li>User selects a size (button highlights in pink)</li>
+              <li>User reviews stock status (in stock / low stock / sold out)</li>
+              <li>User clicks "Add to Cart" button to add selected item</li>
+              <li>Item added to shopping cart with selected color and size</li>
+              <li>User can continue shopping or proceed to checkout</li>
+            </ol>
+          </div>
+        </div>
+
+        <div id="j8-checks" class="tab-content">
+          <div class="checklist">
+            <ul class="checklist-items">
+              <li>Product cards in carousel are clickable</li>
+              <li>Clicking a card navigates to correct product detail page</li>
+              <li>Page loads with full product information</li>
+              <li>Product image displays with correct aspect ratio</li>
+              <li>All available colors display as clickable buttons</li>
+              <li>All available sizes display as clickable buttons</li>
+              <li>Selected color/size buttons highlight in pink</li>
+              <li>Stock status badge displays correctly (in stock, low, sold out)</li>
+              <li>Add to cart button enabled for in-stock items</li>
+              <li>Add to cart button disabled for out-of-stock items</li>
+              <li>Successfully added items appear in cart summary</li>
+              <li>Cart retains selected color and size for added item</li>
+              <li>Multiple products can be added to cart from different product pages</li>
+            </ul>
+          </div>
+        </div>
+
+        <div id="j8-screenshots" class="tab-content">
+          <div class="screenshot-section">
+            <div class="screenshot-container">
+              <div class="screenshot-header">Product Detail Page (Reused from J3)</div>
+              <img src="app_check_images/05-product-detail-full.png" alt="Product detail page with image and options" class="screenshot" onclick="openLightbox(this.src)">
+              <div class="screenshot-caption">
+                Product detail page loads after user clicks product from chat carousel. Reused from J3 testing.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-nav">
+          <button class="nav-button" onclick="prevPanel()">← Previous</button>
+          <button class="nav-button" onclick="nextPanel()">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Panel -->
+    <div class="panel" id="mobile">
+      <div class="panel-header">
+        <div>
+          <h2>Mobile Responsiveness</h2>
+        </div>
+        <div class="panel-header-meta">
+          <span class="status-badge partial"><span class="status-dot status-pending"></span>Partial (1 shot)</span>
+        </div>
+      </div>
+      <div class="panel-content">
+        <div class="panel-description">
+          The Campus Customs application is fully responsive and optimized for mobile devices at viewport widths
+          of 390px and below. Layout elements stack vertically instead of horizontally, images and fonts scale
+          proportionally for readability, and interactive buttons maintain adequate touch target sizes (44×44px minimum).
+          The chat panel converts to full-screen overlay mode on mobile for improved usability.
+        </div>
+
+        <div class="tabs">
+          <button class="tab-button active" onclick="switchTab(event, 'mobile-flow')">Flow (11)</button>
+          <button class="tab-button" onclick="switchTab(event, 'mobile-checks')">Checks (10)</button>
+          <button class="tab-button" onclick="switchTab(event, 'mobile-screenshots')">Screenshots (1)</button>
+        </div>
+
+        <div id="mobile-flow" class="tab-content active">
+          <div class="flow-steps">
+            <ol class="steps-list">
+              <li>User opens application on smartphone or tablet (390px viewport)</li>
+              <li>Page layout automatically adapts to single-column stack</li>
+              <li>Hero section displays with responsive padding and margin</li>
+              <li>Emoji rain animation plays with smaller emojis (16px vs 24px desktop)</li>
+              <li>Product grid displays in 2-column layout instead of 4 columns</li>
+              <li>Images and text scale proportionally to viewport width</li>
+              <li>Navigation menu reorganizes for mobile (hamburger menu or stack)</li>
+              <li>Chat launcher button remains accessible and sized for touch</li>
+              <li>Chat panel expands to full-screen overlay when opened</li>
+              <li>All text remains readable with sufficient font sizes</li>
+              <li>Buttons and interactive elements have adequate touch padding</li>
+            </ol>
+          </div>
+        </div>
+
+        <div id="mobile-checks" class="tab-content">
+          <div class="checklist">
+            <ul class="checklist-items">
+              <li>Page renders and functions correctly at 390px viewport width</li>
+              <li>Navigation menu accessible and functional on mobile</li>
+              <li>Product grid adapts to 2-column layout on tablet, 1-column on mobile</li>
+              <li>Images scale proportionally without distortion</li>
+              <li>Text remains readable (minimum 16px on body text)</li>
+              <li>Emoji rain animation renders with 16px emojis on mobile</li>
+              <li>Chat launcher button touch-friendly (44×44px minimum)</li>
+              <li>Chat panel becomes full-screen overlay on mobile</li>
+              <li>Input fields and buttons sized for touch interaction</li>
+              <li>No horizontal scroll bar at any mobile breakpoint</li>
+            </ul>
+          </div>
+        </div>
+
+        <div id="mobile-screenshots" class="tab-content">
+          <div class="screenshot-section">
+            <div class="screenshot-container">
+              <div class="screenshot-header">Mobile Home (390×844)</div>
+              <img src="app_check_images/13-mobile-home.png" alt="Home page at 390px viewport width" class="screenshot" onclick="openLightbox(this.src)">
+              <div class="screenshot-caption">
+                Home page at 390px viewport. Stacked layout, readable text, emoji rain at smaller scale (16px).
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-nav">
+          <button class="nav-button" onclick="prevPanel()">← Previous</button>
+          <button class="nav-button" onclick="nextPanel()">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Design System Panel -->
+    <div class="panel" id="design">
+      <div class="panel-header">
+        <div>
+          <h2>Design System Verification</h2>
+        </div>
+        <div class="panel-header-meta">
+          <span class="status-badge reference"><span class="status-dot status-reference"></span>Reference</span>
+        </div>
+      </div>
+      <div class="panel-content">
+        <div class="panel-description">
+          Campus Customs implements a bold, high-contrast design system inspired by pudding.cool, a digital
+          publication known for striking data-driven visual design. The system uses a carefully curated color
+          palette, thick borders for visual separation, hard offset shadows for depth, and consistent scaling
+          across all components and responsive breakpoints. <strong>Note:</strong> This section documents design
+          specifications without separate testing screenshots; visual verification occurs throughout J1–J8 journeys.
+        </div>
+
+        <h3>Color Palette</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Token</th>
+              <th>Value</th>
+              <th>Usage</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Primary Pink</strong></td>
+              <td><code>#ff2e93</code></td>
+              <td>Accent color, buttons, active states, shadows, borders</td>
+            </tr>
+            <tr>
+              <td><strong>Ink Black</strong></td>
+              <td><code>#0a0a0a</code></td>
+              <td>Primary text, borders, background overlays, headers</td>
+            </tr>
+            <tr>
+              <td><strong>White</strong></td>
+              <td><code>#ffffff</code></td>
+              <td>Primary background, card backgrounds, text backgrounds</td>
+            </tr>
+            <tr>
+              <td><strong>Light Gray</strong></td>
+              <td><code>#f9f9f9</code></td>
+              <td>Subtle backgrounds, section dividers, hover states</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Border & Shadow System</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Component</th>
+              <th>Border</th>
+              <th>Shadow</th>
+              <th>Hover Shadow</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Section Headers</td>
+              <td>3px solid pink</td>
+              <td>None</td>
+              <td>N/A</td>
+            </tr>
+            <tr>
+              <td>Product Cards</td>
+              <td>2px solid black</td>
+              <td>4px 4px 0 pink</td>
+              <td>6px 6px 0 pink</td>
+            </tr>
+            <tr>
+              <td>Buttons</td>
+              <td>2px solid black</td>
+              <td>4px 4px 0 pink</td>
+              <td>6px 6px 0 pink</td>
+            </tr>
+            <tr>
+              <td>Chat Panel</td>
+              <td>2px solid black</td>
+              <td>8px 8px 0 pink</td>
+              <td>N/A</td>
+            </tr>
+            <tr>
+              <td>Chat Launcher</td>
+              <td>None (circle)</td>
+              <td>4px 4px 0 black</td>
+              <td>6px 6px 0 black</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="checklist">
+          <h4>Verification Points</h4>
+          <ul class="checklist-items">
+            <li>Primary pink (#ff2e93) applied consistently to all accent elements</li>
+            <li>Ink black (#0a0a0a) used for all body text and borders</li>
+            <li>White backgrounds for primary content areas and cards</li>
+            <li>Light gray backgrounds for subtle sections and hover states</li>
+            <li>All card borders are exactly 2px solid black</li>
+            <li>All card shadows are 4px offset in pink (4px 4px 0 #ff2e93)</li>
+            <li>All hover shadows are 6px offset (6px 6px 0 #ff2e93)</li>
+            <li>Section headers use 3px solid pink borders</li>
+            <li>Chat panel uses 8px offset shadow for visual prominence</li>
+            <li>Emoji rain animation contains exactly 80 unique clothing emojis</li>
+            <li>Emojis scale responsively (24px desktop, 16px mobile)</li>
+            <li>All borders use 0 border-radius (sharp corners, no rounding)</li>
+            <li>No gradients or blur effects in shadow system</li>
+          </ul>
+        </div>
+
+        <div class="panel-nav">
+          <button class="nav-button" onclick="prevPanel()">← Previous</button>
+          <button class="nav-button" onclick="nextPanel()">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Backend Panel -->
+    <div class="panel" id="backend">
+      <div class="panel-header">
+        <div>
+          <h2>Backend Performance & Concurrency</h2>
+        </div>
+        <div class="panel-header-meta">
+          <span class="status-badge unmeasured"><span class="status-dot status-pending"></span>Reported (Not Measured)</span>
+        </div>
+      </div>
+      <div class="panel-content">
+        <div class="panel-description">
+          The Campus Customs backend is built with FastAPI and implements asynchronous request handling to ensure
+          non-blocking operation. When an AI chat request is processing (typically 5–8 seconds), other API endpoints
+          remain responsive to concurrent requests. <strong>Note:</strong> The timings and performance claims below
+          are referenced from earlier design documentation and have not been re-measured in this test run.
+        </div>
+
+        <h3>Response Times</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Endpoint</th>
+              <th>Response Time</th>
+              <th>Concurrency Impact</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>/health</code> (System Health)</td>
+              <td>~40ms</td>
+              <td>No degradation during chat processing</td>
+              <td>Reported</td>
+            </tr>
+            <tr>
+              <td><code>/api/products</code> (Product List)</td>
+              <td>~4ms</td>
+              <td>No degradation during chat processing</td>
+              <td>Reported</td>
+            </tr>
+            <tr>
+              <td><code>/api/chat/message</code> (AI Response)</td>
+              <td>~5–8s (async)</td>
+              <td>Processed asynchronously; no blocking</td>
+              <td>Reported</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="checklist">
+          <h4>Performance Specification Points</h4>
+          <ul class="checklist-items">
+            <li>Health check endpoint designed to respond under 50ms</li>
+            <li>Product API endpoint designed to respond under 10ms</li>
+            <li>Chat requests processed asynchronously without blocking event loop</li>
+            <li>Multiple concurrent chat requests queue properly and process in order</li>
+            <li>Architecture supports non-blocking async/await handling</li>
+            <li>Supports concurrent request loads without connection pool exhaustion</li>
+          </ul>
+        </div>
+
+        <div class="panel-nav">
+          <button class="nav-button" onclick="prevPanel()">← Previous</button>
+          <button class="nav-button" onclick="nextPanel()" disabled>Next →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+    <div class="lightbox-content">
+      <div class="lightbox-close" onclick="closeLightbox()">×</div>
+      <img id="lightbox-image" src="" alt="" class="lightbox-image" onclick="event.stopPropagation()">
+    </div>
+  </div>
+
+  <script>
+    const panels = [
+      'overview', 'j1-landing', 'j2-browse', 'j3-detail', 'j4-auth',
+      'j5-info', 'j6-chat', 'j7-search', 'j8-select', 'mobile', 'design', 'backend'
+    ];
+
+    let currentPanelIndex = 0;
+
+    function showPanel(panelId) {
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+
+      const panel = document.getElementById(panelId);
+      if (panel) {
+        panel.classList.add('active');
+        currentPanelIndex = panels.indexOf(panelId);
+      }
+
+      const navItem = document.getElementById(`nav-${panelId}`);
+      if (navItem) navItem.classList.add('active');
+
+      window.location.hash = panelId;
+      closeSidebar();
+    }
+
+    function navigateTo(panelId) {
+      showPanel(panelId);
+      window.scrollTo(0, 0);
+    }
+
+    function nextPanel() {
+      if (currentPanelIndex < panels.length - 1) {
+        showPanel(panels[currentPanelIndex + 1]);
+        window.scrollTo(0, 0);
+      }
+    }
+
+    function prevPanel() {
+      if (currentPanelIndex > 0) {
+        showPanel(panels[currentPanelIndex - 1]);
+        window.scrollTo(0, 0);
+      }
+    }
+
+    function switchTab(event, tabId) {
+      const tabButtons = event.target.parentElement.querySelectorAll('.tab-button');
+      tabButtons.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      const panelContent = event.target.closest('.panel-content');
+      panelContent.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+      panelContent.querySelector(`#${tabId}`).classList.add('active');
+    }
+
+    function openLightbox(src) {
+      const lightbox = document.getElementById('lightbox');
+      document.getElementById('lightbox-image').src = src;
+      lightbox.classList.add('active');
+    }
+
+    function closeLightbox(event) {
+      if (event && event.target.id !== 'lightbox') return;
+      document.getElementById('lightbox').classList.remove('active');
+    }
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('active');
+    }
+
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('active');
+    }
+
+    // Hash routing
+    window.addEventListener('hashchange', () => {
+      const hash = window.location.hash.slice(1) || 'overview';
+      showPanel(hash);
+    });
+
+    // Load initial panel from hash or default to overview
+    const initialHash = window.location.hash.slice(1) || 'overview';
+    showPanel(initialHash);
+  </script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+[
+  {
+    "journey": "J5",
+    "check": "About page",
+    "status": "PASS"
+  },
+  {
+    "journey": "J5",
+    "check": "Footer",
+    "status": "PASS"
+  },
+  {
+    "journey": "J4",
+    "check": "Register form",
+    "status": "PASS"
+  },
+  {
+    "journey": "Mobile",
+    "check": "Home responsive",
+    "status": "PASS"
+  },
+  {
+    "journey": "J6",
+    "check": "Chat panel",
+    "status": "PASS"
+  }
+]
